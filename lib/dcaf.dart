@@ -3,6 +3,6 @@
 /// More dartdocs go here.
 library dcaf;
 
-export 'src/dcaf_base.dart';
+export 'src/endpoints/creation_hint.dart';
 
 // TODO: Export any libraries intended for clients of this package.

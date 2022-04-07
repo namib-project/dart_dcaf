@@ -15,10 +15,14 @@ include: package:lints/recommended.yaml
 # https://dart.dev/guides/language/analysis-options
 
 analyzer:
+  exclude:
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"
   strong-mode:
     implicit-casts: false
     implicit-dynamic: false
   errors:
+    invalid_annotation_target: ignore  # for freezed
     missing_required_param: warning
     missing_return: warning
     package_api_docs: warning
