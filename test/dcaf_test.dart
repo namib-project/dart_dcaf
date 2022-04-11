@@ -1,4 +1,5 @@
 import 'package:dcaf/dcaf.dart';
+import 'package:dcaf/src/aif.dart';
 import 'package:dcaf/src/cbor.dart';
 import 'package:dcaf/src/scope.dart';
 import 'package:test/test.dart';
@@ -16,7 +17,9 @@ void expectSerDe<T extends CborSerializable>(T value, String expectedHex,
   assert(value == decoded);
 }
 
-void expectSerDeHint(AuthServerRequestCreationHint hint, String expectedHex) => expectSerDe(hint, expectedHex, AuthServerRequestCreationHint.fromSerialized);
+void expectSerDeHint(AuthServerRequestCreationHint hint, String expectedHex) =>
+    expectSerDe(
+        hint, expectedHex, AuthServerRequestCreationHint.fromSerialized);
 
 void main() {
   group('Creation Hint', () {
@@ -31,8 +34,7 @@ void main() {
           "coaps://rs.example.com",
           TextScope("rTempC"),
           HEX.decode("e0a156bb3f"));
-      expectSerDeHint(
-          hint,
+      expectSerDeHint(hint,
           "a401781c636f6170733a2f2f61732e6578616d706c652e636f6d2f746f6b656e0576636f6170733a2f2f72732e6578616d706c652e636f6d09667254656d7043182745e0a156bb3f");
     });
 
@@ -43,9 +45,21 @@ void main() {
           "coaps://rs.example.com",
           BinaryScope([0xDC, 0xAF]),
           HEX.decode("e0a156bb3f"));
-      expectSerDeHint(
-          hint,
+      expectSerDeHint(hint,
           "A401781C636F6170733A2F2F61732E6578616D706C652E636F6D2F746F6B656E0576636F6170733A2F2F72732E6578616D706C652E636F6D0942DCAF182745E0A156BB3F");
+    });
+
+    test('AIF Scope', () {
+      final hint = AuthServerRequestCreationHint(
+          "coaps://as.example.com/token",
+          null,
+          "coaps://rs.example.com",
+          AifScope(List.of([
+            AifScopeElement("/s/temp", List.of([AifRestMethod.GET])),
+            AifScopeElement("/a/led", List.of([AifRestMethod.GET, AifRestMethod.PUT]))
+          ])),
+          HEX.decode("e0a156bb3f"));
+      expectSerDeHint(hint, "A401781C636F6170733A2F2F61732E6578616D706C652E636F6D2F746F6B656E0576636F6170733A2F2F72732E6578616D706C652E636F6D098282672F732F74656D700182662F612F6C656405182745E0A156BB3F");
     });
   });
 }

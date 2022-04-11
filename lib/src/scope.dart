@@ -1,13 +1,14 @@
 import 'dart:convert';
 
+import 'package:cbor/cbor.dart';
 import 'package:cbor/src/value/value.dart';
+import 'package:dcaf/src/aif.dart';
 import 'package:dcaf/src/cbor.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import 'endpoints/creation_hint.dart';
 
 abstract class Scope extends CborSerializable {
-
   Scope();
 
   factory Scope.fromValue(CborValue value) {
@@ -16,7 +17,7 @@ abstract class Scope extends CborSerializable {
     } else if (value is CborBytes) {
       return BinaryScope.fromValue(value);
     } else if (value is CborList) {
-      // TODO: AIF
+      return AifScope.fromValue(value);
     }
     // TODO: Proper error types
     throw UnsupportedError("Given CBOR type is unsupported!");
@@ -24,7 +25,6 @@ abstract class Scope extends CborSerializable {
 }
 
 class BinaryScope extends Scope {
-
   ByteString data;
 
   BinaryScope(ByteString this.data);
@@ -53,7 +53,6 @@ class BinaryScope extends Scope {
 }
 
 class TextScope extends Scope {
-
   String data;
 
   TextScope(String this.data);
@@ -79,13 +78,4 @@ class TextScope extends Scope {
 
   @override
   int get hashCode => data.hashCode;
-}
-
-class AifScope extends Scope {
-
-  @override
-  CborValue toCborValue() {
-    // TODO: implement toCborValue
-    throw UnimplementedError();
-  }
 }
