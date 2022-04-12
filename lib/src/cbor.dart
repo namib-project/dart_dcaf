@@ -1,4 +1,13 @@
 import 'package:cbor/cbor.dart';
+import 'package:collection/collection.dart';
+
+typedef ByteString = List<int>;
+
+extension NullableEquals on ByteString? {
+  // `identical` also covers this == other == null
+  bool nullableEquals(ByteString? other) => identical(this, other)
+      || (other != null && this != null && this!.equals(other));
+}
 
 abstract class CborSerializable {
   CborValue toCborValue();
@@ -29,3 +38,4 @@ abstract class CborMapSerializable extends CborSerializable {
     };
   }
 }
+

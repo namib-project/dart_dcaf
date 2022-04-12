@@ -1,18 +1,9 @@
 import 'package:cbor/cbor.dart';
 import 'package:cbor/src/value/value.dart';
-import 'package:dcaf/src/cbor.dart';
-import 'package:dcaf/src/constants/creation_hint.dart';
-import 'package:collection/collection.dart';
 
 import '../scope.dart';
-
-typedef ByteString = List<int>;
-
-extension on ByteString? {
-  // `identical` also covers this == other == null
-  bool nullableEquals(ByteString? other) => identical(this, other)
-      || (other != null && this != null && this!.equals(other));
-}
+import '../cbor.dart';
+import '../constants/creation_hint.dart';
 
 class AuthServerRequestCreationHint extends CborMapSerializable {
   String? authorizationServer;
@@ -22,7 +13,8 @@ class AuthServerRequestCreationHint extends CborMapSerializable {
   ByteString? clientNonce;
 
   AuthServerRequestCreationHint.fromSerialized(List<int> serialized)
-      : this.fromCborMap(CborMapSerializable.valueToCborMap(cborDecode(serialized)));
+      : this.fromCborMap(
+            CborMapSerializable.valueToCborMap(cborDecode(serialized)));
 
   AuthServerRequestCreationHint(this.authorizationServer, this.keyID,
       this.audience, this.scope, this.clientNonce);
