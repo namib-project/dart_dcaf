@@ -61,5 +61,15 @@ void main() {
           HEX.decode("e0a156bb3f"));
       expectSerDeHint(hint, "A401781C636F6170733A2F2F61732E6578616D706C652E636F6D2F746F6B656E0576636F6170733A2F2F72732E6578616D706C652E636F6D098282672F732F74656D700182662F612F6C656405182745E0A156BB3F");
     });
+
+    test('libdcaf Scope', () {
+      final hint = AuthServerRequestCreationHint(
+          "coaps://as.example.com/token",
+          null,
+          "coaps://rs.example.com",
+          LibdcafScope(AifScopeElement("/x/none", List.empty())),
+          HEX.decode("e0a156bb3f"));
+      expectSerDeHint(hint, "A401781C636F6170733A2F2F61732E6578616D706C652E636F6D2F746F6B656E0576636F6170733A2F2F72732E6578616D706C652E636F6D0982672F782F6E6F6E6500182745E0A156BB3F");
+    });
   });
 }

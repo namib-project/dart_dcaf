@@ -78,7 +78,7 @@ class AifScopeElement extends CborSerializable {
   CborValue toCborValue() {
     return CborList([
       CborString(path),
-      CborInt(permissions
+      CborInt(permissions.isEmpty ? BigInt.zero : permissions
           .map((e) => e.bitRepresentation)
           .reduce((value, element) => value | element))
     ]);
@@ -128,4 +128,33 @@ class AifScope extends Scope {
 
   @override
   int get hashCode => elements.hashCode;
+}
+
+class LibdcafScope extends Scope {
+
+  AifScopeElement element;
+
+  LibdcafScope(this.element);
+
+  LibdcafScope.fromValue(CborList value) : this(AifScopeElement.fromValue(value));
+
+  @override
+  CborValue toCborValue() {
+    return element.toCborValue();
+  }
+
+  @override
+  String toString() {
+    return 'LibdcafScope{element: $element}';
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is LibdcafScope &&
+          runtimeType == other.runtimeType &&
+          element == other.element;
+
+  @override
+  int get hashCode => element.hashCode;
 }

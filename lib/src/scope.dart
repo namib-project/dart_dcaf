@@ -17,7 +17,12 @@ abstract class Scope extends CborSerializable {
     } else if (value is CborBytes) {
       return BinaryScope.fromValue(value);
     } else if (value is CborList) {
-      return AifScope.fromValue(value);
+      if (value.first is CborString) {
+        // Special handling for libdcaf.
+        return LibdcafScope.fromValue(value);
+      } else {
+        return AifScope.fromValue(value);
+      }
     }
     // TODO: Proper error types
     throw UnsupportedError("Given CBOR type is unsupported!");
