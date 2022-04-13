@@ -15,7 +15,7 @@ abstract class ProofOfPossessionKey extends CborMapSerializable {
       case 2:
         return EncryptedCoseKey.fromValue(entry.value);
       case 3:
-        var value = entry.value;
+        final value = entry.value;
         if (value is CborBytes) {
           return KeyID.fromValue(value);
         } else {
@@ -42,6 +42,21 @@ class KeyID extends ProofOfPossessionKey {
   }
 
   KeyID.fromValue(CborBytes value) : this(value.bytes);
+
+  @override
+  String toString() {
+    return 'KeyID{keyID: $keyID}';
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is KeyID &&
+          runtimeType == other.runtimeType &&
+          keyID.nullableEquals(other.keyID);
+
+  @override
+  int get hashCode => keyID.hashCode;
 }
 
 class PlainCoseKey extends ProofOfPossessionKey {
