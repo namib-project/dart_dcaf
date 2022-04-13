@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:cbor/cbor.dart';
 import 'package:collection/collection.dart';
 
@@ -22,10 +24,10 @@ enum AifRestMethod {
 }
 
 extension AifMethodBitRepresentation on AifRestMethod {
-  static List<AifRestMethod> fromBitRepresentation(BigInt representation) {
+  static Set<AifRestMethod> fromBitRepresentation(BigInt representation) {
     return AifRestMethod.values
         .where((v) => (v.bitRepresentation & representation) != BigInt.zero)
-        .toList();
+        .toSet();
   }
 
   BigInt get bitRepresentation {
@@ -64,23 +66,26 @@ extension AifMethodBitRepresentation on AifRestMethod {
 
 class AifScopeElement extends CborSerializable {
   String path;
-  List<AifRestMethod> permissions;
+  HashSet<AifRestMethod> permissions;
 
-  AifScopeElement(this.path, this.permissions);
+  AifScopeElement(this.path, Iterable<AifRestMethod> permissions)
+      : permissions = HashSet.from(permissions);
 
   AifScopeElement.fromValue(CborList value)
       : this(
-      (value.first as CborString).toString(),
-      AifMethodBitRepresentation.fromBitRepresentation(
-          (value.last as CborInt).toBigInt()));
+            (value.first as CborString).toString(),
+            AifMethodBitRepresentation.fromBitRepresentation(
+                (value.last as CborInt).toBigInt()));
 
   @override
   CborValue toCborValue() {
     return CborList([
       CborString(path),
-      CborInt(permissions.isEmpty ? BigInt.zero : permissions
-          .map((e) => e.bitRepresentation)
-          .reduce((value, element) => value | element))
+      CborInt(permissions.isEmpty
+          ? BigInt.zero
+          : permissions
+              .map((e) => e.bitRepresentation)
+              .reduce((value, element) => value | element))
     ]);
   }
 
@@ -95,19 +100,21 @@ class AifScopeElement extends CborSerializable {
       other is AifScopeElement &&
           runtimeType == other.runtimeType &&
           path == other.path &&
-          permissions.equals(other.permissions);
+          SetEquality<AifRestMethod>().equals(permissions, other.permissions);
 
   @override
   int get hashCode => path.hashCode ^ permissions.hashCode;
 }
 
 class AifScope extends Scope {
-
   List<AifScopeElement> elements;
 
   AifScope(this.elements);
 
-  AifScope.fromValue(CborList value) : this(value.map((e) => AifScopeElement.fromValue(e as CborList)).toList());
+  AifScope.fromValue(CborList value)
+      : this(value
+            .map((e) => AifScopeElement.fromValue(e as CborList))
+            .toList());
 
   @override
   CborValue toCborValue() {
@@ -131,12 +138,12 @@ class AifScope extends Scope {
 }
 
 class LibdcafScope extends Scope {
-
   AifScopeElement element;
 
   LibdcafScope(this.element);
 
-  LibdcafScope.fromValue(CborList value) : this(AifScopeElement.fromValue(value));
+  LibdcafScope.fromValue(CborList value)
+      : this(AifScopeElement.fromValue(value));
 
   @override
   CborValue toCborValue() {
