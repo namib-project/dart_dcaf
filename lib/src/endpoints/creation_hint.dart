@@ -16,8 +16,9 @@ class AuthServerRequestCreationHint extends CborMapSerializable {
       : this.fromCborMap(
             CborMapSerializable.valueToCborMap(cborDecode(serialized)));
 
-  AuthServerRequestCreationHint(this.authorizationServer, this.keyID,
-      this.audience, this.scope, this.clientNonce);
+
+  AuthServerRequestCreationHint({this.authorizationServer, this.keyID,
+      this.audience, this.scope, this.clientNonce});
 
   AuthServerRequestCreationHint.fromCborMap(Map<int, CborValue> map) {
     // TODO: Better error handling
