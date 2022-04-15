@@ -39,3 +39,28 @@ abstract class CborMapSerializable extends CborSerializable {
   }
 }
 
+// We can't really extend another mixin/class here, so we have to implement it.
+mixin CborIntSerializable implements CborSerializable {
+
+  int get cbor;
+
+  @override
+  CborValue toCborValue() {
+      return CborSmallInt(cbor);
+  }
+
+  static int valueToInt(CborValue value) {
+    if (value is CborSmallInt) {
+      return value.toInt();
+    } else if (value is CborInt) {
+      throw RangeError("Given CBOR integer is too big to be represented in this type.");
+    } else {
+      throw UnsupportedError("Unsupported CBOR type ${value.runtimeType} (expected CborInt).");
+    }
+  }
+
+  @override
+  List<int> serialize() {
+    return cborEncode(toCborValue());
+  }
+}

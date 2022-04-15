@@ -1,46 +1,25 @@
+import 'package:cbor/cbor.dart';
+import 'package:dcaf/src/cbor.dart';
 import 'package:dcaf/src/constants/grant_types.dart';
 
-enum GrantType {
-  Password,
+enum GrantType with CborIntSerializable {
+  password(PASSWORD),
 
-  AuthorizationCode,
+  authorizationCode(AUTHORIZATION_CODE),
 
-  ClientCredentials,
+  clientCredentials(CLIENT_CREDENTIALS),
 
-  RefreshToken,
+  refreshToken(REFRESH_TOKEN);
 
-  Other
-}
+  // Note: "Other" is not supported.
 
-const Map<int, GrantType> _grantTypeMapping = {
-  PASSWORD: GrantType.Password,
-  AUTHORIZATION_CODE: GrantType.AuthorizationCode,
-  CLIENT_CREDENTIALS: GrantType.ClientCredentials,
-  REFRESH_TOKEN: GrantType.RefreshToken
-};
+  @override
+  final int cbor;
 
-Map<GrantType, int> _reversedGrantTypeMapping = _grantTypeMapping
-    .map((k, v) => MapEntry(v, k));
+  const GrantType(this.cbor);
 
-extension GrantTypeCbor on GrantType {
-  int get cborKey {
-    final int? result = _reversedGrantTypeMapping[this];
-    if (result != null) {
-      return result;
-    } else if (this == GrantType.Other) {
-      throw UnsupportedError("Custom grant types are not yet supported.");
-    } else {
-      throw RangeError("Unknown grant type '${this}'");
-    }
-  }
-
-  static GrantType fromCborKey(int key) {
-    final GrantType? result = _grantTypeMapping[key];
-    if (result != null) {
-      return result;
-    } else {
-      throw UnsupportedError("Custom grant types are not yet supported.");
-    }
+  static GrantType fromCborValue(CborValue value) {
+    final valueInt = CborIntSerializable.valueToInt(value);
+    return GrantType.values.singleWhere((e) => e.cbor == valueInt);
   }
 }
-

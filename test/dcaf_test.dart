@@ -59,9 +59,9 @@ void main() {
           keyID: null,
           audience: "coaps://rs.example.com",
           scope: AifScope(List.of([
-            AifScopeElement("/s/temp", List.of([AifRestMethod.GET])),
+            AifScopeElement("/s/temp", [AifRestMethod.get]),
             AifScopeElement(
-                "/a/led", List.of([AifRestMethod.GET, AifRestMethod.PUT]))
+                "/a/led", List.of([AifRestMethod.get, AifRestMethod.put]))
           ])),
           clientNonce: HEX.decode("e0a156bb3f"));
       expectSerDeHint(hint,
@@ -104,13 +104,13 @@ void main() {
           clientId: "testclient",
           audience: "coaps://localhost",
           scope: AifScope([
-            AifScopeElement("restricted", [AifRestMethod.GET]),
+            AifScopeElement("restricted", [AifRestMethod.get]),
             AifScopeElement("extended",
-                [AifRestMethod.GET, AifRestMethod.PUT, AifRestMethod.POST]),
+                [AifRestMethod.get, AifRestMethod.put, AifRestMethod.post]),
             AifScopeElement("dynamic", [
-              AifRestMethod.DYNAMIC_GET,
-              AifRestMethod.DYNAMIC_PUT,
-              AifRestMethod.DYNAMIC_POST
+              AifRestMethod.dynamicGet,
+              AifRestMethod.dynamicPut,
+              AifRestMethod.dynamicPost
             ]),
             AifScopeElement("unrestricted", AifRestMethod.values),
             AifScopeElement("useless", []),
@@ -123,7 +123,7 @@ void main() {
       final request = AccessTokenRequest(
           audience: "coaps://localhost",
           scope: LibdcafScope(
-            AifScopeElement("restricted", [AifRestMethod.GET]),
+            AifScopeElement("restricted", [AifRestMethod.get]),
           ),
           issuer: "coaps://127.0.0.1:7744/authorize");
       expectSerDeRequest(request,
@@ -144,7 +144,7 @@ void main() {
       final request = AccessTokenRequest(
         clientId: "myclient",
         redirectUri: "coaps://server.example.com",
-        grantType: GrantType.ClientCredentials,
+        grantType: GrantType.clientCredentials,
         scope: BinaryScope([0xDC, 0xAF]),
         includeAceProfile: true,
         clientNonce: [0,1,2,3,4]

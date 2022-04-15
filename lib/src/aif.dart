@@ -6,61 +6,32 @@ import 'package:collection/collection.dart';
 import 'cbor.dart';
 import 'scope.dart';
 
-enum AifRestMethod {
-  GET,
-  POST,
-  PUT,
-  DELETE,
-  FETCH,
-  PATCH,
-  IPATCH,
-  DYNAMIC_GET,
-  DYNAMIC_POST,
-  DYNAMIC_PUT,
-  DYNAMIC_DELETE,
-  DYNAMIC_FETCH,
-  DYNAMIC_PATCH,
-  DYNAMIC_IPATCH
-}
+/// **Important: This type won't be (de)serialized correctly if
+/// the "dynamic" REST methods are used when you're on the Web platform!**
+enum AifRestMethod with CborIntSerializable {
+  get(1 << 0),
+  post(1 << 1),
+  put(1 << 2),
+  delete(1 << 3),
+  fetch(1 << 4),
+  patch(1 << 5),
+  ipatch(1 << 6),
+  dynamicGet(1 << 32),
+  dynamicPost(1 << 33),
+  dynamicPut(1 << 34),
+  dynamicDelete(1 << 35),
+  dynamicFetch(1 << 36),
+  dynamicPatch(1 << 37),
+  dynamicIpatch(1 << 38);
 
-extension AifMethodBitRepresentation on AifRestMethod {
-  static Set<AifRestMethod> fromBitRepresentation(BigInt representation) {
-    return AifRestMethod.values
-        .where((v) => (v.bitRepresentation & representation) != BigInt.zero)
-        .toSet();
-  }
+  @override
+  final int cbor;
 
-  BigInt get bitRepresentation {
-    switch (this) {
-      case AifRestMethod.GET:
-        return BigInt.one << 0;
-      case AifRestMethod.POST:
-        return BigInt.one << 1;
-      case AifRestMethod.PUT:
-        return BigInt.one << 2;
-      case AifRestMethod.DELETE:
-        return BigInt.one << 3;
-      case AifRestMethod.FETCH:
-        return BigInt.one << 4;
-      case AifRestMethod.PATCH:
-        return BigInt.one << 5;
-      case AifRestMethod.IPATCH:
-        return BigInt.one << 6;
-      case AifRestMethod.DYNAMIC_GET:
-        return BigInt.one << 32;
-      case AifRestMethod.DYNAMIC_POST:
-        return BigInt.one << 33;
-      case AifRestMethod.DYNAMIC_PUT:
-        return BigInt.one << 34;
-      case AifRestMethod.DYNAMIC_DELETE:
-        return BigInt.one << 35;
-      case AifRestMethod.DYNAMIC_FETCH:
-        return BigInt.one << 36;
-      case AifRestMethod.DYNAMIC_PATCH:
-        return BigInt.one << 37;
-      case AifRestMethod.DYNAMIC_IPATCH:
-        return BigInt.one << 38;
-    }
+  const AifRestMethod(this.cbor);
+
+  static Iterable<AifRestMethod> fromCborValue(CborValue value) {
+    final int cborInt = CborIntSerializable.valueToInt(value);
+    return AifRestMethod.values.where((e) => (e.cbor & cborInt) != 0);
   }
 }
 
@@ -72,19 +43,16 @@ class AifScopeElement extends CborSerializable {
       : permissions = HashSet.from(permissions);
 
   AifScopeElement.fromValue(CborList value)
-      : this(
-            (value.first as CborString).toString(),
-            AifMethodBitRepresentation.fromBitRepresentation(
-                (value.last as CborInt).toBigInt()));
+      : this((value.first as CborString).toString(), AifRestMethod.fromCborValue(value.last));
 
   @override
   CborValue toCborValue() {
     return CborList([
       CborString(path),
-      CborInt(permissions.isEmpty
-          ? BigInt.zero
+      CborSmallInt(permissions.isEmpty
+          ? 0
           : permissions
-              .map((e) => e.bitRepresentation)
+              .map((e) => e.cbor)
               .reduce((value, element) => value | element))
     ]);
   }

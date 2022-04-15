@@ -38,7 +38,7 @@ class AccessTokenRequest extends CborMapSerializable {
           clientId = (value as CborString).toString();
           break;
         case GRANT_TYPE:
-          grantType = GrantTypeCbor.fromCborKey((value as CborInt).toInt());
+          grantType = GrantType.fromCborValue(value);
           break;
         case AUDIENCE:
           audience = (value as CborString).toString();
@@ -76,7 +76,7 @@ class AccessTokenRequest extends CborMapSerializable {
       if (scope != null) SCOPE: scope!.toCborValue(),
       if (clientId != null) CLIENT_ID: CborString(clientId!),
       if (redirectUri != null) REDIRECT_URI: CborString(redirectUri!),
-      if (grantType != null) GRANT_TYPE: CborSmallInt(grantType!.cborKey),
+      if (grantType != null) GRANT_TYPE: CborSmallInt(grantType!.cbor),
       if (includeAceProfile) ACE_PROFILE: CborNull(),
       if (clientNonce != null) CNONCE: CborBytes(clientNonce!),
     };
