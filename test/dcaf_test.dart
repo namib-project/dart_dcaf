@@ -2,11 +2,14 @@ import 'dart:collection';
 
 import 'package:cbor/cbor.dart';
 import 'package:dcaf/dcaf.dart';
+import 'package:dcaf/src/ace_profile.dart';
 import 'package:dcaf/src/aif.dart';
 import 'package:dcaf/src/cbor.dart';
+import 'package:dcaf/src/constants/ace_profile.dart';
 import 'package:dcaf/src/cose/cose_key.dart';
 import 'package:dcaf/src/cose/key_type.dart';
 import 'package:dcaf/src/endpoints/token_request.dart';
+import 'package:dcaf/src/endpoints/token_response.dart';
 import 'package:dcaf/src/grant_type.dart';
 import 'package:dcaf/src/pop.dart';
 import 'package:dcaf/src/scope.dart';
@@ -31,6 +34,9 @@ void expectSerDeHint(AuthServerRequestCreationHint hint, String expectedHex) =>
 
 void expectSerDeRequest(AccessTokenRequest request, String expectedHex) =>
     expectSerDe(request, expectedHex, AccessTokenRequest.fromSerialized);
+
+void expectSerDeResponse(AccessTokenResponse response, String expectedHex) =>
+    expectSerDe(response, expectedHex, AccessTokenResponse.fromSerialized);
 
 void main() {
   group('Creation Hint', () {
@@ -145,36 +151,105 @@ void main() {
 
     test('Asymmetric request', () {
       final request = AccessTokenRequest(
-        clientId: "myclient",
-        reqCnf: PlainCoseKey(CoseKey(
-            keyType: KeyType.ec2,
-            keyId: [0x11],
-            parameters: {
-              -1: CborSmallInt(1),  // Curve: P-256
-              -2: CborBytes(HEX.decode('d7cc072de' // x parameter
-                  '2205bdc1537a543d53c60a6acb62eccd890c7fa27c9e354089bbe13')),
-              -3: CborBytes(HEX.decode('f95e1d4b8' // y parameter
-                  '51a2cc80fff87d8e23f22afb725d535e515d020731e79a3b4e47120'))
-            }
-        ))
-      );
-      expectSerDeRequest(request, "A204A101A501020241112001215820D7CC072DE2205BDC1537A543D53C60A6ACB62ECCD890C7FA27C9E354089BBE13225820F95E1D4B851A2CC80FFF87D8E23F22AFB725D535E515D020731E79A3B4E471201818686D79636C69656E74");
+          clientId: "myclient",
+          reqCnf: PlainCoseKey(CoseKey(keyType: KeyType.ec2, keyId: [
+            0x11
+          ], parameters: {
+            -1: CborSmallInt(1), // Curve: P-256
+            -2: CborBytes(HEX.decode('d7cc072de' // x parameter
+                '2205bdc1537a543d53c60a6acb62eccd890c7fa27c9e354089bbe13')),
+            -3: CborBytes(HEX.decode('f95e1d4b8' // y parameter
+                '51a2cc80fff87d8e23f22afb725d535e515d020731e79a3b4e47120'))
+          })));
+      expectSerDeRequest(request,
+          "A204A101A501020241112001215820D7CC072DE2205BDC1537A543D53C60A6ACB62ECCD890C7FA27C9E354089BBE13225820F95E1D4B851A2CC80FFF87D8E23F22AFB725D535E515D020731E79A3B4E471201818686D79636C69656E74");
     });
 
     test('Request with other fields', () {
       final request = AccessTokenRequest(
-        clientId: "myclient",
-        redirectUri: "coaps://server.example.com",
-        grantType: GrantType.clientCredentials,
-        scope: BinaryScope([0xDC, 0xAF]),
-        includeAceProfile: true,
-        clientNonce: [0,1,2,3,4]
-      );
-      expectSerDeRequest(request, "A60942DCAF1818686D79636C69656E74181B781A636F6170733A2F2F7365727665722E6578616D706C652E636F6D1821021826F61827450001020304");
+          clientId: "myclient",
+          redirectUri: "coaps://server.example.com",
+          grantType: GrantType.clientCredentials,
+          scope: BinaryScope([0xDC, 0xAF]),
+          includeAceProfile: true,
+          clientNonce: [0, 1, 2, 3, 4]);
+      expectSerDeRequest(request,
+          "A60942DCAF1818686D79636C69656E74181B781A636F6170733A2F2F7365727665722E6578616D706C652E636F6D1821021826F61827450001020304");
+    });
+  });
+
+  group("Access Token Response", () {
+    test("AIF Response", () {
+      final response = AccessTokenResponse(
+          accessToken: [0xDC, 0xAF],
+          scope: AifScope([
+            AifScopeElement("restricted", [AifRestMethod.get]),
+            AifScopeElement("extended",
+                [AifRestMethod.get, AifRestMethod.put, AifRestMethod.post]),
+            AifScopeElement("dynamic", [
+              AifRestMethod.dynamicGet,
+              AifRestMethod.dynamicPut,
+              AifRestMethod.dynamicPost
+            ]),
+            AifScopeElement("unrestricted", AifRestMethod.values),
+            AifScopeElement("useless", [])
+          ]));
+      expectSerDeResponse(response,
+          "A20142DCAF0985826A72657374726963746564018268657874656E64656407826764796E616D69631B0000000700000000826C756E726573747269637465641B0000007F0000007F82677573656C65737300");
     });
 
-    test('Encrypted request', () {
-      // FIXME: Include req_cnf with COSE_Encrypt0!
+    test("Libdcaf Response + Timestamp", () {
+      final response = AccessTokenResponse(
+          accessToken: [0xDC, 0xAF],
+          scope:
+              LibdcafScope(AifScopeElement("restricted", [AifRestMethod.get])),
+          // Note: Since whole seconds are used, setting milliseconds will fail.
+          issuedAt: DateTime.utc(2022, 2, 22, 22, 22, 22, 0, 0));
+      expectSerDeResponse(
+          response, "A30142DCAF061A6215621E09826A7265737472696374656401");
+
+      final otherResponse = AccessTokenResponse(
+          accessToken: [0xDC, 0xAF],
+          scope: LibdcafScope(AifScopeElement("empty", [])),
+          // Note: Since whole seconds are used, setting milliseconds will fail.
+          issuedAt: DateTime.utc(1970));
+      expectSerDeResponse(otherResponse, "A30142DCAF0600098265656D70747900");
+    });
+
+    test("Normal Response", () {
+      final response = AccessTokenResponse(
+          accessToken: HEX.decode("4a5015df686428"),
+          aceProfile: AceProfile.CoapDtls,
+          expiresIn: 3600,
+          cnf: PlainCoseKey(CoseKey(keyType: KeyType.symmetric, keyId: [
+            0x84,
+            0x9b,
+            0x57,
+            0x86,
+            0x45,
+            0x7c
+          ], parameters: {
+            -1: CborBytes([
+              0x84,
+              0x9b,
+              0x57,
+              0x86,
+              0x45,
+              0x7c,
+              0x14,
+              0x91,
+              0xbe,
+              0x3a,
+              0x76,
+              0xdc,
+              0xea,
+              0x6c,
+              0x42,
+              0x71,
+              0x08,
+            ])
+          })));
+      expectSerDeResponse(response, "A401474A5015DF68642802190E1008A101A301040246849B5786457C2051849B5786457C1491BE3A76DCEA6C427108182601");
     });
   });
 }

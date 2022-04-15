@@ -8,8 +8,6 @@ abstract class ProofOfPossessionKey extends CborMapSerializable {
 
   ProofOfPossessionKey();
 
-
-
   factory ProofOfPossessionKey.fromCborMap(Map<int, CborValue> value) {
     final MapEntry<int, CborValue> entry = value.entries.single;
     switch (entry.key) {
@@ -29,6 +27,10 @@ abstract class ProofOfPossessionKey extends CborMapSerializable {
         throw UnsupportedError(
             "Unknown ProofOfPossessionKey type '${entry.key}'.");
     }
+  }
+
+  factory ProofOfPossessionKey.fromCborValue(CborValue value) {
+    return ProofOfPossessionKey.fromCborMap(CborMapSerializable.valueToCborMap(value));
   }
 }
 
