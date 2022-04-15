@@ -1,8 +1,11 @@
 import 'dart:collection';
 
+import 'package:cbor/cbor.dart';
 import 'package:dcaf/dcaf.dart';
 import 'package:dcaf/src/aif.dart';
 import 'package:dcaf/src/cbor.dart';
+import 'package:dcaf/src/cose/cose_key.dart';
+import 'package:dcaf/src/cose/key_type.dart';
 import 'package:dcaf/src/endpoints/token_request.dart';
 import 'package:dcaf/src/grant_type.dart';
 import 'package:dcaf/src/pop.dart';
@@ -140,6 +143,24 @@ void main() {
           "A404A10348EA483475724CD775056876616C76653432340964726561641818686D79636C69656E74");
     });
 
+    test('Asymmetric request', () {
+      final request = AccessTokenRequest(
+        clientId: "myclient",
+        reqCnf: PlainCoseKey(CoseKey(
+            keyType: KeyType.ec2,
+            keyId: [0x11],
+            parameters: {
+              -1: CborSmallInt(1),  // Curve: P-256
+              -2: CborBytes(HEX.decode('d7cc072de' // x parameter
+                  '2205bdc1537a543d53c60a6acb62eccd890c7fa27c9e354089bbe13')),
+              -3: CborBytes(HEX.decode('f95e1d4b8' // y parameter
+                  '51a2cc80fff87d8e23f22afb725d535e515d020731e79a3b4e47120'))
+            }
+        ))
+      );
+      expectSerDeRequest(request, "A204A101A501020241112001215820D7CC072DE2205BDC1537A543D53C60A6ACB62ECCD890C7FA27C9E354089BBE13225820F95E1D4B851A2CC80FFF87D8E23F22AFB725D535E515D020731E79A3B4E471201818686D79636C69656E74");
+    });
+
     test('Request with other fields', () {
       final request = AccessTokenRequest(
         clientId: "myclient",
@@ -150,10 +171,6 @@ void main() {
         clientNonce: [0,1,2,3,4]
       );
       expectSerDeRequest(request, "A60942DCAF1818686D79636C69656E74181B781A636F6170733A2F2F7365727665722E6578616D706C652E636F6D1821021826F61827450001020304");
-    });
-
-    test('Asymmetric request', () {
-      // FIXME: Include req_cnf with COSE_Key!
     });
 
     test('Encrypted request', () {
