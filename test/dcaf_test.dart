@@ -13,19 +13,18 @@ import 'package:dcaf/src/endpoints/token_response.dart';
 import 'package:dcaf/src/grant_type.dart';
 import 'package:dcaf/src/pop.dart';
 import 'package:dcaf/src/scope.dart';
-import 'package:test/test.dart';
 import 'package:hex/hex.dart';
-import 'package:collection/collection.dart';
+import 'package:test/test.dart';
 
 void expectSerDe<T extends CborSerializable>(T value, String expectedHex,
     T Function(List<int> serialized) fromSerialized) {
   final serialized = value.serialize();
   print("Result: ${HEX.encode(serialized)}\nOriginal: $value");
-  assert(serialized.equals(HEX.decode(expectedHex)));
+  expect(serialized, equals(HEX.decode(expectedHex)));
 
   final T decoded = fromSerialized(serialized);
   print("Decoded: $decoded");
-  assert(value == decoded);
+  expect(value, equals(decoded));
 }
 
 void expectSerDeHint(AuthServerRequestCreationHint hint, String expectedHex) =>
@@ -39,8 +38,204 @@ void expectSerDeResponse(AccessTokenResponse response, String expectedHex) =>
     expectSerDe(response, expectedHex, AccessTokenResponse.fromSerialized);
 
 void main() {
+  group('Scope', () {
+    group('Text Scope', () {
+      test('Simple Text Scopes', () {
+        final simple = TextScope("this is a test");
+        expect(simple.elements, equals(["this", "is", "a", "test"]));
+
+        final single = TextScope("single");
+        expect(single.elements, equals(["single"]));
+
+        final third = TextScope("another quick test");
+        expect(third.elements, equals(["another", "quick", "test"]));
+      });
+
+      test('Empty Text Scopes', () {
+        final emptyInputs = ["    ", " ", ""];
+
+        for (final input in emptyInputs) {
+          expect(() => TextScope(input), throwsArgumentError);
+        }
+      });
+
+      test('Invalid Spaces in Text Scope', () {
+        final invalid = [
+          "space at the end ",
+          "spaces at the end   ",
+          " space at the start",
+          "   spaces at the start",
+          " spaces at both ends ",
+          "   spaces at both ends    ",
+          "spaces   in the       middle",
+          "   spaces   wherever  you    look   ",
+        ];
+        for (final input in invalid) {
+          expect(() => TextScope(input), throwsArgumentError);
+        }
+      });
+
+      test('Invalid Characters in Text Scope', () {
+        final invalid = [
+          "\"",
+          "\\",
+          "a \" in between",
+          "a \\ in between",
+          " \" ",
+          " \\ ",
+          "within\"word",
+          "within\\word",
+        ];
+        for (final input in invalid) {
+          expect(() => TextScope(input), throwsArgumentError);
+        }
+      });
+    });
+
+    group('Binary Scope', () {
+      test('Normal Elements', () {
+        final single = BinaryScope([0]);
+        expect(
+            single.elements(0x20),
+            equals([
+              [0]
+            ]));
+
+        final simple1 = BinaryScope([0, 1, 2]);
+        expect(
+            simple1.elements(0x20),
+            equals([
+              [0, 1, 2]
+            ]));
+        expect(
+            simple1.elements(1),
+            equals([
+              [0],
+              [2]
+            ]));
+
+        final simple2 = BinaryScope([0xDC, 0x20, 0xAF]);
+        expect(
+            simple2.elements(0x20),
+            equals([
+              [0xDC],
+              [0xAF]
+            ]));
+        expect(
+            simple2.elements(0),
+            equals([
+              [0xDC, 0x20, 0xAF]
+            ]));
+
+        final simple3 =
+            BinaryScope([0xDE, 0xAD, 0xBE, 0xEF, 0, 0xDC, 0xAF, 0, 1]);
+        expect(
+            simple3.elements(0),
+            equals([
+              [0xDE, 0xAD, 0xBE, 0xEF],
+              [0xDC, 0xAF],
+              [1],
+            ]));
+        expect(
+            simple3.elements(0xEF),
+            equals([
+              [0xDE, 0xAD, 0xBE],
+              [0, 0xDC, 0xAF, 0, 1]
+            ]));
+        expect(
+            simple3.elements(2),
+            equals([
+              [0xDE, 0xAD, 0xBE, 0xEF, 0, 0xDC, 0xAF, 0, 1]
+            ]));
+      });
+
+      test('Empty Elements', () {
+        expect(() => BinaryScope([]), throwsArgumentError);
+        // Assuming 0 is separator
+        final emptyLists = [
+          [0],
+          [0, 0],
+          [0, 0, 0]
+        ];
+        for (final empty in emptyLists) {
+          expect(() => BinaryScope(empty).elements(0), throwsArgumentError);
+          // If the separator is something else,
+          // the result should just contain the list as a single element.
+          expect(BinaryScope(empty).elements(1), equals([empty]));
+        }
+      });
+
+      test('Invalid Separators', () {
+        final invalids = [
+          [0xDC, 0xAF, 0],
+          [0xDC, 0xAF, 0, 0],
+          [0, 0xDC, 0xAF],
+          [0, 0, 0xDC, 0xAF],
+          [0, 0xDC, 0xAF, 0],
+          [0, 0, 0xDC, 0xAF, 0, 0],
+          [0, 0, 0xDC, 0xAF, 0, 0],
+          [0xDC, 0, 0, 0xAF],
+          [0, 0xDC, 0, 0xAF, 0],
+          [0, 0, 0xDC, 0, 0xAF, 0],
+          [0, 0xDC, 0, 0, 0xAF, 0],
+          [0, 0xDC, 0, 0xAF, 0, 0],
+          [0, 0, 0xDC, 0, 0, 0xAF, 0, 0],
+        ];
+        for (final invalid in invalids) {
+          expect(() => BinaryScope(invalid).elements(0), throwsArgumentError);
+          // If the separator is something else,
+          // the result should just contain the list as a single element.
+          expect(BinaryScope(invalid).elements(1), equals([invalid]));
+        }
+      });
+    });
+
+    final restricted = AifScopeElement("restricted", [AifRestMethod.get]);
+    final dynamic = AifScopeElement(
+        "dynamic", [AifRestMethod.dynamicGet, AifRestMethod.dynamicFetch]);
+    final all = AifScopeElement("all", AifRestMethod.values);
+    final none = AifScopeElement("none", []);
+
+    group('AIF Scope', () {
+      test('Normal Elements', () {
+        final single = AifScope([restricted]);
+        expect(single.elements, equals([restricted]));
+        final multiple = AifScope([dynamic, none, all]);
+        expect(multiple.elements, equals([dynamic, none, all]));
+      });
+
+      test('AIF Encoding', () {
+        // This tests the encoding of the scope using the example
+        // given in Figure 5 of the AIF draft.
+        final cbor = HEX
+            .decode("8382672F732F74656D700182662F612F6C65640582652F64746C7302");
+        final expected = AifScope([
+          AifScopeElement("/s/temp", [AifRestMethod.get]),
+          AifScopeElement("/a/led", [AifRestMethod.put, AifRestMethod.get]),
+          AifScopeElement("/dtls", [AifRestMethod.post])
+        ]);
+        expect(
+            AifScope.fromValue(cborDecode(cbor) as CborList), equals(expected));
+      });
+    });
+
+    group('Libdcaf Scope', () {
+      test('Normal Element', () {
+        for (final element in [restricted, dynamic, all, none]) {
+          expect(LibdcafScope(element).element, equals(element));
+        }
+      });
+
+      test('Empty Element', () {
+        final serialized = [0x80]; // empty CBOR array (not allowed!)
+        expect(() => LibdcafScope.fromValue(cborDecode(serialized) as CborList),
+            throwsStateError);
+      });
+    });
+  });
+
   group('Creation Hint', () {
-    test('Text Scope', () {
+    test('Text Scope Hint', () {
       final hint = AuthServerRequestCreationHint(
           authorizationServer: "coaps://as.example.com/token",
           keyID: null,
@@ -51,7 +246,7 @@ void main() {
           "a401781c636f6170733a2f2f61732e6578616d706c652e636f6d2f746f6b656e0576636f6170733a2f2f72732e6578616d706c652e636f6d09667254656d7043182745e0a156bb3f");
     });
 
-    test('Binary Scope', () {
+    test('Binary Scope Hint', () {
       final hint = AuthServerRequestCreationHint(
           authorizationServer: "coaps://as.example.com/token",
           keyID: null,
@@ -62,7 +257,7 @@ void main() {
           "A401781C636F6170733A2F2F61732E6578616D706C652E636F6D2F746F6B656E0576636F6170733A2F2F72732E6578616D706C652E636F6D0942DCAF182745E0A156BB3F");
     });
 
-    test('AIF Scope', () {
+    test('AIF Scope Hint', () {
       final hint = AuthServerRequestCreationHint(
           authorizationServer: "coaps://as.example.com/token",
           keyID: null,
@@ -77,7 +272,7 @@ void main() {
           "A401781C636F6170733A2F2F61732E6578616D706C652E636F6D2F746F6B656E0576636F6170733A2F2F72732E6578616D706C652E636F6D098282672F732F74656D700182662F612F6C656405182745E0A156BB3F");
     });
 
-    test('libdcaf Scope', () {
+    test('libdcaf Scope Hint', () {
       final hint = AuthServerRequestCreationHint(
           authorizationServer: "coaps://as.example.com/token",
           keyID: null,
@@ -249,7 +444,8 @@ void main() {
               0x08,
             ])
           })));
-      expectSerDeResponse(response, "A401474A5015DF68642802190E1008A101A301040246849B5786457C2051849B5786457C1491BE3A76DCEA6C427108182601");
+      expectSerDeResponse(response,
+          "A401474A5015DF68642802190E1008A101A301040246849B5786457C2051849B5786457C1491BE3A76DCEA6C427108182601");
     });
   });
 }
