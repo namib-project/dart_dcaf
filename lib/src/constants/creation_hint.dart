@@ -2,16 +2,17 @@
 /// as specified in [`draft-ietf-ace-oauth-authz-46`](https://www.ietf.org/archive/id/draft-ietf-ace-oauth-authz-46.html), Figure 2.
 
 /// See section 5.3 of [`draft-ietf-ace-oauth-authz-46`](https://www.ietf.org/archive/id/draft-ietf-ace-oauth-authz-46.html).
+// ignore: constant_identifier_names
 const int AS = 1;
 
 /// See section 5.3 of [`draft-ietf-ace-oauth-authz-46`](https://www.ietf.org/archive/id/draft-ietf-ace-oauth-authz-46.html).
-const int KID = 2;
+const int kId = 2;
 
 /// See section 5.3 of [`draft-ietf-ace-oauth-authz-46`](https://www.ietf.org/archive/id/draft-ietf-ace-oauth-authz-46.html).
-const int AUDIENCE = 5;
+const int audience = 5;
 
 /// See section 5.3 of [`draft-ietf-ace-oauth-authz-46`](https://www.ietf.org/archive/id/draft-ietf-ace-oauth-authz-46.html).
-const int SCOPE = 9;
+const int scope = 9;
 
 /// See section 5.3 of [`draft-ietf-ace-oauth-authz-46`](https://www.ietf.org/archive/id/draft-ietf-ace-oauth-authz-46.html).
-const int CNONCE = 39;
+const int cNonce = 39;

@@ -1,16 +1,34 @@
-import 'dart:convert';
-
 import 'package:cbor/cbor.dart';
-import 'package:cbor/src/value/value.dart';
 import 'package:dcaf/src/aif.dart';
 import 'package:dcaf/src/cbor.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-import 'endpoints/creation_hint.dart';
+import 'endpoints/token_request.dart';
+import 'endpoints/token_response.dart';
 
+/// Scope of an access token as specified in
+/// [`draft-ietf-ace-oauth-authz`, section 5.8.1](https://www.ietf.org/archive/id/draft-ietf-ace-oauth-authz-46.html#section-5.8.1-2.4).
+///
+/// May be used both for [AccessTokenRequest]s and [AccessTokenResponse]s.
+///
+/// # Example
+///
+/// You can create binary, text encoded, or AIF-encoded scopes:
+/// ```dart
+/// final textScope = TextScope("dcaf rs");
+/// final binaryScope = BinaryScope([0xDC, 0xAF]);
+/// final aifScope = AifScope([AifScopeElement("test", [AifRestMethod.get])]);
+/// ```
+///
+/// For information on how to initialize a concrete scope type
+/// or retrieve the individual elements inside them,
+/// see their respective documentation pages.
 abstract class Scope extends CborSerializable {
+
+  /// Don't use this. This class was not designed to be extended by clients.
   Scope();
 
+  /// Creates a [Scope] instance from the given CBOR [value].
   factory Scope.fromValue(CborValue value) {
     if (value is CborString) {
       return TextScope.fromValue(value);
@@ -24,22 +42,45 @@ abstract class Scope extends CborSerializable {
         return AifScope.fromValue(value);
       }
     }
-    // TODO: Proper error types
+    // TODO(falko17): Proper error types
     throw UnsupportedError("Given CBOR type is unsupported!");
   }
 }
 
+/// A scope encoded using a custom binary encoding.
+/// See [Scope] for more information.
+///
+/// # Example
+///
+/// Simply create a [BinaryScope] from a byte array
+/// (we're using the byte `0x21` as a separator in this example):
+/// ```dart
+/// final scope = BinaryScope([0x00, 0x21, 0xDC, 0xAF]);
+/// assert(scope.elements(0x21) == [[0x00], [0xDC, 0xAF]]));
+/// ```
 class BinaryScope extends Scope {
+  /// The content of the scope, using a custom binary encoding
+  /// (though a single separator byte is required).
   ByteString data;
 
+  /// Creates a new [BinaryScope] instance.
   BinaryScope(this.data) {
     if (data.isEmpty) {
       throw ArgumentError("Scope must not be empty!");
     }
   }
 
-  BinaryScope.fromValue(CborBytes value) : this(value.bytes);
+  /// Creates a new [BinaryScope] instance from the given CBOR [bytes].
+  BinaryScope.fromValue(CborBytes bytes) : this(bytes.bytes);
 
+  /// Returns the elements of this scope, assuming they are separated by the
+  /// given [separator]. If no separator is given, a single element consisting
+  /// of the whole [data] is returned.
+  ///
+  /// Note that an [ArgumentError] will be thrown in any of these cases:
+  /// - The [data] begins with the [separator].
+  /// - The [data] ends with the [separator].
+  /// - The [data] contains at least two [separator]s in a row.
   List<ByteString> elements(int? separator) {
     if (separator == null) {
       return [data];
@@ -81,9 +122,34 @@ class BinaryScope extends Scope {
   }
 }
 
+/// A scope encoded as a space-delimited list of strings, as defined in
+/// [RFC 6749, section 1.3](https://www.rfc-editor.org/rfc/rfc6749.html#section-1.3).
+///
+/// Note that the syntax specified in the RFC has to be followed:
+/// ```text
+/// scope       = scope-token *( SP scope-token )
+/// scope-token = 1*( %x21 / %x23-5B / %x5D-7E )
+/// ```
+///
+/// # Example
+///
+/// You can create a [TextScope] from a space-separated string:
+/// ```dart
+/// let scope = TextScope("first second third");
+/// assert(scope.elements() == ["first", "second", "third"]);
+/// ```
+///
+/// But note that you have to follow the syntax from the RFC,
+/// which implicitly specifies the following:
+/// - Scopes can't be empty.
+/// - Scopes can't begin or end with a space.
+/// - Scopes can't contain two consecutive spaces.
+/// - Scopes can't contain the characters `"` (double quote) or `\` (backslash).
 class TextScope extends Scope {
+  /// Content of the text-encoded scope.
   String data;
 
+  /// Creates a new [TextScope] instance.
   TextScope(this.data) {
     if (data.isEmpty) {
       throw ArgumentError("Scope must not be empty!");
@@ -98,8 +164,11 @@ class TextScope extends Scope {
     }
   }
 
-  TextScope.fromValue(CborString value) : this(value.toString());
+  /// Creates a new [TextScope] instance from the given CBOR [text].
+  TextScope.fromValue(CborString text) : this(text.toString());
 
+  /// Returns the elements of this scope, assuming that it is a list
+  /// of elements separated by spaces.
   List<String> get elements => data.split(' ');
 
   @override

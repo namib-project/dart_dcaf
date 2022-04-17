@@ -16,7 +16,7 @@ import 'endpoints/error_response.dart';
 /// ```dart
 /// let request = ErrorResponse(error: ErrorCode.unauthorizedClient);
 /// ```
-enum ErrorCode with CborIntSerializable {
+enum ErrorCode with CborSerializableEnum {
   /// The request is missing a required parameter, includes an unsupported
   /// parameter value (other than grant type), repeats a parameter, includes
   /// multiple credentials, utilizes more than one mechanism for authenticating
@@ -60,7 +60,7 @@ enum ErrorCode with CborIntSerializable {
 
   /// Creates a new [ErrorCode] instance using the given CBOR [value].
   static ErrorCode fromCborValue(CborValue value) {
-    final valueInt = CborIntSerializable.valueToInt(value);
+    final valueInt = CborSerializableEnum.valueToInt(value);
     return ErrorCode.values.singleWhere((e) => e.cbor == valueInt);
   }
 }

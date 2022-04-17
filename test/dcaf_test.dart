@@ -1,15 +1,16 @@
-import 'dart:collection';
+// ignore_for_file: lines_longer_than_80_chars
 
 import 'package:cbor/cbor.dart';
 import 'package:dcaf/dcaf.dart';
 import 'package:dcaf/src/ace_profile.dart';
 import 'package:dcaf/src/aif.dart';
 import 'package:dcaf/src/cbor.dart';
-import 'package:dcaf/src/constants/ace_profile.dart';
 import 'package:dcaf/src/cose/cose_key.dart';
 import 'package:dcaf/src/cose/key_type.dart';
+import 'package:dcaf/src/endpoints/error_response.dart';
 import 'package:dcaf/src/endpoints/token_request.dart';
 import 'package:dcaf/src/endpoints/token_response.dart';
+import 'package:dcaf/src/error_code.dart';
 import 'package:dcaf/src/grant_type.dart';
 import 'package:dcaf/src/pop.dart';
 import 'package:dcaf/src/scope.dart';
@@ -36,6 +37,9 @@ void expectSerDeRequest(AccessTokenRequest request, String expectedHex) =>
 
 void expectSerDeResponse(AccessTokenResponse response, String expectedHex) =>
     expectSerDe(response, expectedHex, AccessTokenResponse.fromSerialized);
+
+void expectSerDeError(ErrorResponse response, String expectedHex) =>
+    expectSerDe(response, expectedHex, ErrorResponse.fromSerialized);
 
 void main() {
   group('Scope', () {
@@ -288,7 +292,7 @@ void main() {
     test('Symmetric Request', () {
       final request = AccessTokenRequest(
         clientId: "myclient",
-        audience: "tempSensor4711",
+        audience: "tempSensor4711"
       );
       expectSerDeRequest(
           request, "A2056E74656D7053656E736F72343731311818686D79636C69656E74");
@@ -339,7 +343,7 @@ void main() {
           clientId: "myclient",
           audience: "valve424",
           scope: TextScope("read"),
-          reqCnf: KeyID([0xea, 0x48, 0x34, 0x75, 0x72, 0x4c, 0xd7, 0x75]));
+          reqCnf: KeyId([0xea, 0x48, 0x34, 0x75, 0x72, 0x4c, 0xd7, 0x75]));
       expectSerDeRequest(request,
           "A404A10348EA483475724CD775056876616C76653432340964726561641818686D79636C69656E74");
     });
@@ -414,7 +418,7 @@ void main() {
     test("Normal Response", () {
       final response = AccessTokenResponse(
           accessToken: HEX.decode("4a5015df686428"),
-          aceProfile: AceProfile.CoapDtls,
+          aceProfile: AceProfile.coapDtls,
           expiresIn: 3600,
           cnf: PlainCoseKey(CoseKey(keyType: KeyType.symmetric, keyId: [
             0x84,
@@ -446,6 +450,17 @@ void main() {
           })));
       expectSerDeResponse(response,
           "A401474A5015DF68642802190E1008A101A301040246849B5786457C2051849B5786457C1491BE3A76DCEA6C427108182601");
+    });
+  });
+
+  group('Error Response', () {
+
+    test('Simple Error', () {
+      final error = ErrorResponse(
+          error: ErrorCode.unauthorizedClient,
+          description: "You are not authorized to receive this token.",
+          uri: "https://http.cat/401");
+      expectSerDeError(error, "A3181E04181F782D596F7520617265206E6F7420617574686F72697A656420746F2072656365697665207468697320746F6B656E2E18207468747470733A2F2F687474702E6361742F343031");
     });
   });
 }

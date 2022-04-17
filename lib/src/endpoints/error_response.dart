@@ -11,10 +11,12 @@ import '../constants/token.dart' as token_const;
 /// For example, let us use the example from [section 5.2 of RFC 6749](https://www.rfc-editor.org/rfc/rfc6749.html#section-5.2):
 /// ```text
 /// {
-///       "error":"invalid_request"
+///       "error": "invalid_request"
 /// }
-///
 /// ```
+/// (Note that abbreviations aren't used here, so keep in mind that the
+/// labels are really integers instead of strings.)
+///
 /// Creating and serializing a simple error response telling the client
 /// their request was invalid
 /// would look like the following:
@@ -23,9 +25,6 @@ import '../constants/token.dart' as token_const;
 /// final serialized = error.serialize();
 /// assert(ErrorResponse.fromSerialized(serialized) == error);
 /// ```
-///
-/// [^cbor]: Note that abbreviations aren't used here, so keep in mind that the
-/// labels are really integers instead of strings.
 class ErrorResponse extends CborMapSerializable {
   /// Error code for this error.
   ///
@@ -44,11 +43,13 @@ class ErrorResponse extends CborMapSerializable {
   //about the error.
   String? uri;
 
+  /// Creates a new [ErrorResponse] instance.
   ErrorResponse({required this.error, this.description, this.uri});
 
+  /// Creates a new [ErrorResponse] instance from the given CBOR [map].
   ErrorResponse.fromCborMap(Map<int, CborValue> map)
       : error = ErrorCode.fromCborValue(map[token_const.error]!) {
-    // TODO: Better error handling
+    // TODO(falko17): Better error handling
     map.forEach((key, value) {
       switch (key) {
         case token_const.error:
@@ -66,6 +67,11 @@ class ErrorResponse extends CborMapSerializable {
     });
   }
 
+  /// Creates a new [ErrorResponse] instance from the given [serialized] CBOR.
+  ErrorResponse.fromSerialized(List<int> serialized)
+      : this.fromCborMap(
+      CborMapSerializable.valueToCborMap(cborDecode(serialized)));
+
   @override
   Map<int, CborValue> toCborMap() {
     return {
@@ -75,10 +81,6 @@ class ErrorResponse extends CborMapSerializable {
       if (uri != null) token_const.errorUri: CborString(uri!)
     };
   }
-
-  ErrorResponse.fromSerialized(List<int> serialized)
-      : this.fromCborMap(
-            CborMapSerializable.valueToCborMap(cborDecode(serialized)));
 
   @override
   String toString() {

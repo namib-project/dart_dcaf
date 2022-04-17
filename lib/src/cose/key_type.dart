@@ -1,13 +1,8 @@
-import 'dart:mirrors';
-
 import 'package:cbor/cbor.dart';
-import 'package:dcaf/src/cbor.dart';
-import 'package:dcaf/src/constants/cose_key.dart';
+import '../cbor.dart';
 
-enum KeyType with CborIntSerializable {
-  /// This value is reserved.
-  reserved(0),
-
+/// Denotes a family of keys.
+enum KeyType with CborSerializableEnum {
   /// Octet Key Pair.
   okp(1),
 
@@ -26,13 +21,15 @@ enum KeyType with CborIntSerializable {
   /// WalnutDSA public key.
   walnutDsa(6);
 
+  /// Creates a new [KeyType] instance using the given CBOR value.
   const KeyType(this.cbor);
 
   @override
   final int cbor;
 
+  /// Creates a new [KeyType] instance using the given CBOR [value].
   static KeyType fromCborValue(CborValue value) {
-    final valueInt = CborIntSerializable.valueToInt(value);
+    final valueInt = CborSerializableEnum.valueToInt(value);
     return KeyType.values.singleWhere((e) => e.cbor == valueInt);
   }
 }
