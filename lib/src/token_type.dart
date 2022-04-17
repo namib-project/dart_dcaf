@@ -1,3 +1,14 @@
+/*
+ * Copyright (c) 2022 The NAMIB Project Developers.
+ * Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or
+ * https://www.apache.org/licenses/LICENSE-2.0> or the MIT license
+ * <LICENSE-MIT or https://opensource.org/licenses/MIT>, at your
+ * option. This file may not be copied, modified, or distributed
+ * except according to those terms.
+ *
+ * SPDX-License-Identifier: MIT OR Apache-2.0
+ */
+
 import 'package:cbor/cbor.dart';
 import 'package:dcaf/src/cbor.dart';
 import 'endpoints/token_response.dart';
@@ -19,7 +30,6 @@ import 'endpoints/token_response.dart';
 ///     cnf: KeyId([0xDC, 0xAF]));
 /// ```
 enum TokenType with CborSerializableEnum {
-
   /// Bearer token type as defined in [RFC 6750](https://www.rfc-editor.org/rfc/rfc6750).
   bearer(1),
 
