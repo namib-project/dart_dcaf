@@ -140,18 +140,46 @@ class PlainCoseKey extends ProofOfPossessionKey {
   int get hashCode => key.hashCode;
 }
 
+/// An encrypted [CoseKey] used to represent a symmetric key.
+///
+/// **Note that this class is incomplete and not usable without considerable
+/// effort!**
+/// All it contains is a [CborValue] it hasn't bothered to decode itself
+/// which will contain a `COSE_Encrypt0` or `COSE_Encrypt` structure.
+/// If you intend to use this, you will need to decode the [value] contained
+/// here yourself.
+///
+/// For details, see [section 3.3 of RFC 8747](https://datatracker.ietf.org/doc/html/rfc8747#section-3.3).
 class EncryptedCoseKey extends ProofOfPossessionKey {
+  /// `COSE_Encrypt0` or `COSE_Encrypt` structure containing the [CoseKey].
+  CborValue value;
+
+  /// Creates a new [EncryptedCoseKey] instance.
+  EncryptedCoseKey(this.value) : super._();
+
+  /// Creates a new [EncryptedCoseKey] instance from the given CBOR [value].
+  EncryptedCoseKey.fromValue(CborValue value) : this(value);
+
   @override
-  // TODO: implement keyId
   ByteString? get keyId => throw UnimplementedError();
 
   @override
   Map<int, CborValue> toCborMap() {
-    // TODO: implement toCborMap
-    throw UnimplementedError();
+    return {2: value};
   }
 
-  EncryptedCoseKey.fromValue(CborValue value) {
-    throw UnimplementedError();
+  @override
+  String toString() {
+    return 'EncryptedCoseKey{value: $value}';
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is EncryptedCoseKey &&
+          runtimeType == other.runtimeType &&
+          value == other.value;
+
+  @override
+  int get hashCode => value.hashCode;
 }
