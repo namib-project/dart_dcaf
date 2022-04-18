@@ -45,7 +45,7 @@ import '../scope.dart';
 ///     audience: "coaps://rs.example.com",
 ///     scope: scope,
 ///     clientNonce: [0xe0, 0xa1, 0x56, 0xbb, 0x3f]);
-/// final serialized = hint.serialized();
+/// final serialized = hint.serialize();
 /// assert(AuthServerRequestCreationHint.fromSerialized(serialized) == request);
 /// ```
 class AuthServerRequestCreationHint extends CborMapSerializable {

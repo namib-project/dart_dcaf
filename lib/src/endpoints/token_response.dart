@@ -52,9 +52,9 @@ import '../token_type.dart';
 ///    keyType: KeyType.symmetric,
 ///    keyId: [0xDF, 0xD1, 0xAA, 0x97],
 ///    parameters: {
-//       // field "k" (the key itself)
-//       -1: CborBytes([ 0x84, 0x9b, 0x57, 0x86, 0x45, 0x7c, 0x14, 0x91, 0xbe,
-//       0x3a, 0x76, 0xdc, 0xea, 0x6c, 0x42, 0x71, 0x08])
+///      // field "k" (the key itself)
+///      -1: CborBytes([ 0x84, 0x9b, 0x57, 0x86, 0x45, 0x7c, 0x14, 0x91, 0xbe,
+///      0x3a, 0x76, 0xdc, 0xea, 0x6c, 0x42, 0x71, 0x08])
 ///    });
 /// final response = AccessTokenResponse(
 ///    // Access Token omitted, should be a CWT whose `cnf` claim contains
@@ -63,7 +63,7 @@ import '../token_type.dart';
 ///    expiresIn: 3600,
 ///    cnf: PlainCoseKey(key));
 /// final serialized = response.serialize();
-/// assert(AccessTokenResponse.deserializeFrom(serialized) == response);
+/// assert(AccessTokenResponse.fromSerialized(serialized) == response);
 /// ```
 class AccessTokenResponse extends CborMapSerializable {
   /// The access token issued by the authorization server.
