@@ -38,6 +38,7 @@ import 'endpoints/token_response.dart';
 /// see their respective documentation pages.
 abstract class Scope extends CborSerializable {
   /// Don't use this. This class was not designed to be extended by clients.
+  @protected
   Scope();
 
   /// Creates a [Scope] instance from the given CBOR [value].
