@@ -10,7 +10,7 @@
  */
 
 import 'package:cbor/cbor.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:collection/collection.dart';
 
 import '../cbor.dart';
 import '../constants/cose_key.dart';

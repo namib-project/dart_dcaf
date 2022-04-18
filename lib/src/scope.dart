@@ -10,7 +10,8 @@
  */
 
 import 'package:cbor/cbor.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:collection/collection.dart';
+import 'package:meta/meta.dart';
 
 import 'aif.dart';
 import 'cbor.dart';

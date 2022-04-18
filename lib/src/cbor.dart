@@ -11,6 +11,7 @@
 
 import 'package:cbor/cbor.dart';
 import 'package:collection/collection.dart';
+import 'package:meta/meta.dart';
 
 /// A string of bytes, as used in CBOR ([RFC 7049](https://datatracker.ietf.org/doc/html/rfc7049)).
 typedef ByteString = List<int>;
@@ -33,6 +34,11 @@ extension NullableEquals on ByteString? {
 
 /// Abstract class intended for data structures which are serializable to CBOR.
 abstract class CborSerializable {
+
+  /// Don't use this. This class was not designed to be extended by clients.
+  @protected
+  CborSerializable();
+
   /// Serializes this instance to a [CborValue].
   CborValue toCborValue();
 
