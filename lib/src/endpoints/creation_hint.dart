@@ -103,7 +103,7 @@ class AuthServerRequestCreationHint extends CborMapSerializable {
           clientNonce = (value as CborBytes).bytes;
           break;
         default:
-          throw UnsupportedError("CBOR map key $key not supported!");
+          throw FormatException("CBOR map key $key not supported!", map);
       }
     });
   }

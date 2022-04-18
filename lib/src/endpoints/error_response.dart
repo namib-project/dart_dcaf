@@ -60,7 +60,6 @@ class ErrorResponse extends CborMapSerializable {
   /// Creates a new [ErrorResponse] instance from the given CBOR [map].
   ErrorResponse.fromCborMap(Map<int, CborValue> map)
       : error = ErrorCode.fromCborValue(map[token_const.error]!) {
-    // TODO(falko17): Better error handling
     map.forEach((key, value) {
       switch (key) {
         case token_const.error:
@@ -73,7 +72,7 @@ class ErrorResponse extends CborMapSerializable {
           uri = (value as CborString).toString();
           break;
         default:
-          throw UnsupportedError("CBOR map key $key not supported!");
+          throw FormatException("CBOR map key $key not supported!", map);
       }
     });
   }

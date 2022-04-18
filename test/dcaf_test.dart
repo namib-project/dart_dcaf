@@ -70,7 +70,7 @@ void main() {
         final emptyInputs = ["    ", " ", ""];
 
         for (final input in emptyInputs) {
-          expect(() => TextScope(input), throwsArgumentError);
+          expect(() => TextScope(input), throwsFormatException);
         }
       });
 
@@ -86,7 +86,7 @@ void main() {
           "   spaces   wherever  you    look   ",
         ];
         for (final input in invalid) {
-          expect(() => TextScope(input), throwsArgumentError);
+          expect(() => TextScope(input), throwsFormatException);
         }
       });
 
@@ -102,7 +102,7 @@ void main() {
           "within\\word",
         ];
         for (final input in invalid) {
-          expect(() => TextScope(input), throwsArgumentError);
+          expect(() => TextScope(input), throwsFormatException);
         }
       });
     });
@@ -165,7 +165,7 @@ void main() {
       });
 
       test('Empty Elements', () {
-        expect(() => BinaryScope([]), throwsArgumentError);
+        expect(() => BinaryScope([]), throwsFormatException);
         // Assuming 0 is separator
         final emptyLists = [
           [0],
@@ -173,7 +173,7 @@ void main() {
           [0, 0, 0]
         ];
         for (final empty in emptyLists) {
-          expect(() => BinaryScope(empty).elements(0), throwsArgumentError);
+          expect(() => BinaryScope(empty).elements(0), throwsFormatException);
           // If the separator is something else,
           // the result should just contain the list as a single element.
           expect(BinaryScope(empty).elements(1), equals([empty]));
@@ -197,7 +197,7 @@ void main() {
           [0, 0, 0xDC, 0, 0, 0xAF, 0, 0],
         ];
         for (final invalid in invalids) {
-          expect(() => BinaryScope(invalid).elements(0), throwsArgumentError);
+          expect(() => BinaryScope(invalid).elements(0), throwsFormatException);
           // If the separator is something else,
           // the result should just contain the list as a single element.
           expect(BinaryScope(invalid).elements(1), equals([invalid]));

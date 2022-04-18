@@ -126,7 +126,7 @@ class CoseKey extends CborMapSerializable {
 
   static KeyType _initializeKeyType(CborValue? kty) {
     if (kty == null) {
-      throw ArgumentError("Given CBOR map must have kty field!");
+      throw FormatException("Given CBOR map must have kty field!");
     }
     return KeyType.fromCborValue(kty);
   }

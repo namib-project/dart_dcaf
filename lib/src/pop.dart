@@ -55,14 +55,14 @@ abstract class ProofOfPossessionKey extends CborMapSerializable {
         return EncryptedCoseKey.fromValue(entry.value);
       case 3:
         final value = entry.value;
-        if (value is CborBytes) {
-          return KeyId.fromValue(value);
-        } else {
-          throw UnsupportedError("Key ID must consist of CBOR bytestring.");
+        if (value is! CborBytes) {
+          throw FormatException(
+              "Key ID must consist of CBOR bytestring.", value);
         }
+        return KeyId.fromValue(value);
       default:
-        throw UnsupportedError(
-            "Unknown ProofOfPossessionKey type '${entry.key}'.");
+        throw FormatException(
+            "Unknown ProofOfPossessionKey type '${entry.key}'.", entry);
     }
   }
 

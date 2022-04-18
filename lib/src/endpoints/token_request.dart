@@ -101,7 +101,6 @@ class AccessTokenRequest extends CborMapSerializable {
 
   /// Creates a new [AccessTokenRequest] instance from the given CBOR [map].
   AccessTokenRequest.fromCborMap(Map<int, CborValue> map) {
-    // TODO(falko17): Better error handling
     map.forEach((key, value) {
       switch (key) {
         case token_const.clientId:
@@ -133,7 +132,7 @@ class AccessTokenRequest extends CborMapSerializable {
           issuer = (value as CborString).toString();
           break;
         default:
-          throw UnsupportedError("CBOR map key $key not supported!");
+          throw FormatException("CBOR map key $key not supported!", map);
       }
     });
   }

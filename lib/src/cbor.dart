@@ -84,16 +84,19 @@ mixin CborSerializableEnum on Enum implements CborSerializable {
 
   /// Tries to convert the given CBOR [value] into an [int], which requires
   /// that the given [value] is a [CborSmallInt], i.e., can be losslessly
-  /// converted into an [int] (otherwise a [RangeError] will be thrown).
+  /// converted into an [int], otherwise a [FormatException] will be thrown.
+  /// A [FormatException] will also be thrown if the given [value] is not a
+  /// [CborInt] at all.
   static int valueToInt(CborValue value) {
     if (value is CborSmallInt) {
       return value.toInt();
     } else if (value is CborInt) {
-      throw RangeError(
+      throw FormatException(
           "Given CBOR integer is too big to be represented in this type.");
     } else {
-      throw UnsupportedError(
-          "Unsupported CBOR type ${value.runtimeType} (expected CborInt).");
+      throw FormatException(
+          "Unsupported CBOR type ${value.runtimeType} (expected CborInt).",
+          value);
     }
   }
 

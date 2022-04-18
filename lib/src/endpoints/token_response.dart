@@ -130,7 +130,7 @@ class AccessTokenResponse extends CborMapSerializable {
 
   static ByteString _initializeAccessToken(CborValue? token) {
     if (token == null || token is! CborBytes) {
-      throw ArgumentError("Given CBOR map must have access token field!");
+      throw FormatException("Given CBOR map must have access token field!");
     }
     return token.bytes;
   }
@@ -139,7 +139,6 @@ class AccessTokenResponse extends CborMapSerializable {
   /// CBOR [map].
   AccessTokenResponse.fromCborMap(Map<int, CborValue> map)
       : accessToken = _initializeAccessToken(map[token_const.accessToken]) {
-    // TODO(falko17): Better error handling
     map.forEach((key, value) {
       switch (key) {
         case token_const.accessToken:
@@ -173,7 +172,7 @@ class AccessTokenResponse extends CborMapSerializable {
           rsCnf = ProofOfPossessionKey.fromCborValue(value);
           break;
         default:
-          throw UnsupportedError("CBOR map key $key not supported!");
+          throw FormatException("CBOR map key $key not supported!", map);
       }
     });
   }

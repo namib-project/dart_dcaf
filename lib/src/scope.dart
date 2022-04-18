@@ -22,6 +22,8 @@ import 'endpoints/token_response.dart';
 ///
 /// May be used both for [AccessTokenRequest]s and [AccessTokenResponse]s.
 ///
+/// If the given CBOR type is unsupported, a [FormatException] will be thrown.
+///
 /// # Example
 ///
 /// You can create binary, text encoded, or AIF-encoded scopes:
@@ -52,8 +54,7 @@ abstract class Scope extends CborSerializable {
         return AifScope.fromValue(value);
       }
     }
-    // TODO(falko17): Proper error types
-    throw UnsupportedError("Given CBOR type is unsupported!");
+    throw FormatException("Given CBOR type is unsupported!", value);
   }
 }
 
@@ -73,10 +74,10 @@ class BinaryScope extends Scope {
   /// (though a single separator byte is required).
   ByteString data;
 
-  /// Creates a new [BinaryScope] instance.
+  /// Creates a new [BinaryScope] instance from a byte-string of [data].
   BinaryScope(this.data) {
     if (data.isEmpty) {
-      throw ArgumentError("Scope must not be empty!");
+      throw FormatException("Scope must not be empty!");
     }
   }
 
@@ -87,7 +88,7 @@ class BinaryScope extends Scope {
   /// given [separator]. If no separator is given, a single element consisting
   /// of the whole [data] is returned.
   ///
-  /// Note that an [ArgumentError] will be thrown in any of these cases:
+  /// Note that a [FormatException] will be thrown in any of these cases:
   /// - The [data] begins with the [separator].
   /// - The [data] ends with the [separator].
   /// - The [data] contains at least two [separator]s in a row.
@@ -95,12 +96,16 @@ class BinaryScope extends Scope {
     if (separator == null) {
       return [data];
     } else if (data.firstOrNull == separator) {
-      throw ArgumentError("Scope must not start with separator!");
+      throw FormatException("Scope must not start with separator!", data, 0);
     } else if (data.lastOrNull == separator) {
-      throw ArgumentError("Scope must not end with separator!");
+      throw FormatException(
+          "Scope must not end with separator!", data, data.length - 1);
     } else if (IterableZip([data, data.skip(1)]).any((element) =>
         element.firstOrNull == separator && separator == element.lastOrNull)) {
-      throw ArgumentError("Scope must not contain two consecutive separators!");
+      throw FormatException(
+          "Scope must not contain two consecutive "
+          "separators!",
+          data);
     }
     final result = data.splitBefore((element) => element == separator);
     // For every element except the first, we need to remove the separator,
@@ -159,18 +164,30 @@ class TextScope extends Scope {
   /// Content of the text-encoded scope.
   String data;
 
-  /// Creates a new [TextScope] instance.
+  /// Creates a new [TextScope] instance from a string.
+  ///
+  /// Note that a [FormatException] will be thrown in any of these cases:
+  /// - The [data] is empty.
+  /// - The [data] begins with a space.
+  /// - The [data] ends with a space.
+  /// - The [data] contains at least two spaces in a row.
+  /// - The [data] contains illegal characters (`"` or `\`).
   TextScope(this.data) {
     if (data.isEmpty) {
-      throw ArgumentError("Scope must not be empty!");
+      throw FormatException("Scope must not be empty!");
     } else if (data.endsWith(" ")) {
-      throw ArgumentError("Scope must not end with separator (space)!");
+      throw FormatException(
+          "Scope must not end with separator (space)!", data, data.length - 1);
     } else if (data.startsWith(" ")) {
-      throw ArgumentError("Scope must not start with separator (space)!");
+      throw FormatException(
+          "Scope must not start with separator (space)!", data, 0);
     } else if (data.contains(RegExp(r'(?:"|\\)'))) {
-      throw ArgumentError("Scope must not contain illegal characters!");
+      throw FormatException("Scope must not contain illegal characters!", data);
     } else if (data.contains("  ")) {
-      throw ArgumentError("Scope must not contain two consecutive separators!");
+      throw FormatException(
+          "Scope must not contain two consecutive separators!",
+          data,
+          data.indexOf("  "));
     }
   }
 
