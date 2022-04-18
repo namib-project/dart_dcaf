@@ -26,6 +26,9 @@ is *out of scope* for this library.
 
 ## Getting started
 
+**Note that this package is currently in pre-release, mainly because we depend
+on Dart 2.17.0, which is still in Beta at the time of writing.**
+
 All you need to do to get started is to add this package to your `pubspec.yaml`.
 You can then import it using `import 'package:dcaf/dcaf.dart`.
 
