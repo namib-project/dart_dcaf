@@ -10,10 +10,10 @@
  */
 
 import 'package:cbor/cbor.dart';
-import 'package:dcaf/src/aif.dart';
-import 'package:dcaf/src/cbor.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import 'aif.dart';
+import 'cbor.dart';
 import 'endpoints/token_request.dart';
 import 'endpoints/token_response.dart';
 

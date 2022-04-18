@@ -10,7 +10,8 @@
  */
 
 import 'package:cbor/cbor.dart';
-import 'package:dcaf/src/cbor.dart';
+
+import 'cbor.dart';
 import 'endpoints/token_response.dart';
 
 /// The type of the token issued as described in section 7.1 of

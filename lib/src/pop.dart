@@ -10,9 +10,9 @@
  */
 
 import 'package:cbor/cbor.dart';
-import 'package:dcaf/src/cose/cose_key.dart';
 
 import 'cbor.dart';
+import 'cose/cose_key.dart';
 import 'endpoints/token_request.dart';
 import 'endpoints/token_response.dart';
 

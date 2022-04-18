@@ -10,12 +10,12 @@
  */
 
 import 'package:cbor/cbor.dart';
-import 'package:dcaf/src/constants/token.dart' as token_const;
-import 'package:dcaf/src/pop.dart';
 
 import '../cbor.dart';
 import '../constants/introspection.dart' as intro_const;
+import '../constants/token.dart' as token_const;
 import '../grant_type.dart';
+import '../pop.dart';
 import '../scope.dart';
 
 /// Request for an access token, sent from the client, as defined in

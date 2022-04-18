@@ -10,9 +10,9 @@
  */
 
 import 'package:cbor/cbor.dart';
-import 'package:dcaf/src/cbor.dart';
-import 'package:dcaf/src/error_code.dart';
+import '../cbor.dart';
 import '../constants/token.dart' as token_const;
+import '../error_code.dart';
 
 /// Details about an error which occurred for an access token request.
 ///

@@ -10,7 +10,7 @@
  */
 
 import 'package:cbor/cbor.dart';
-import 'package:dcaf/src/cbor.dart';
+import '../cbor.dart';
 
 /// COSE algorithms as described in
 /// [`draft-ietf-cose-rfc8152bis-algs`](https://datatracker.ietf.org/doc/draft-ietf-cose-rfc8152bis-algs/)

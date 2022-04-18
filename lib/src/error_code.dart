@@ -10,7 +10,8 @@
  */
 
 import 'package:cbor/cbor.dart';
-import 'package:dcaf/src/cbor.dart';
+
+import 'cbor.dart';
 import 'endpoints/error_response.dart';
 
 /// Error code specifying what went wrong for a token request, as specified in

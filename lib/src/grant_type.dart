@@ -10,7 +10,8 @@
  */
 
 import 'package:cbor/cbor.dart';
-import 'package:dcaf/src/cbor.dart';
+
+import 'cbor.dart';
 import 'endpoints/token_request.dart';
 import 'endpoints/token_response.dart';
 

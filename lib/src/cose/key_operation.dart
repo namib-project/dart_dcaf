@@ -10,7 +10,7 @@
  */
 
 import 'package:cbor/cbor.dart';
-import 'package:dcaf/src/cbor.dart';
+import '../cbor.dart';
 
 /// An operation that a key can be used for, as defined in
 /// Table 4 of [section 7.1 of RFC 8152](https://datatracker.ietf.org/doc/html/rfc8152#section-7.1).
