@@ -100,7 +100,7 @@ class AccessTokenRequest extends CborMapSerializable {
       this.issuer});
 
   /// Creates a new [AccessTokenRequest] instance from the given CBOR [map].
-  AccessTokenRequest.fromCborMap(Map<int, CborValue> map) {
+  AccessTokenRequest._fromCborMap(Map<int, CborValue> map) {
     map.forEach((key, value) {
       switch (key) {
         case token_const.clientId:
@@ -125,8 +125,7 @@ class AccessTokenRequest extends CborMapSerializable {
           includeAceProfile = true;
           break;
         case token_const.reqCnf:
-          reqCnf = ProofOfPossessionKey.fromCborMap(
-              CborMapSerializable.valueToCborMap(value));
+          reqCnf = ProofOfPossessionKey.fromCborValue(value);
           break;
         case intro_const.issuer:
           issuer = (value as CborString).toString();
@@ -140,7 +139,7 @@ class AccessTokenRequest extends CborMapSerializable {
   /// Creates a new [AccessTokenRequest] instance from the given
   /// [serialized] CBOR.
   AccessTokenRequest.fromSerialized(List<int> serialized)
-      : this.fromCborMap(
+      : this._fromCborMap(
             CborMapSerializable.valueToCborMap(cborDecode(serialized)));
 
   @override

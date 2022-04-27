@@ -137,7 +137,7 @@ class AccessTokenResponse extends CborMapSerializable {
 
   /// Creates a new [AccessTokenResponse] instance from the given
   /// CBOR [map].
-  AccessTokenResponse.fromCborMap(Map<int, CborValue> map)
+  AccessTokenResponse._fromCborMap(Map<int, CborValue> map)
       : accessToken = _initializeAccessToken(map[token_const.accessToken]) {
     map.forEach((key, value) {
       switch (key) {
@@ -180,7 +180,7 @@ class AccessTokenResponse extends CborMapSerializable {
   /// Creates a new [AccessTokenResponse] instance from the given
   /// [serialized] CBOR.
   AccessTokenResponse.fromSerialized(List<int> serialized)
-      : this.fromCborMap(
+      : this._fromCborMap(
             CborMapSerializable.valueToCborMap(cborDecode(serialized)));
 
   @override

@@ -58,7 +58,7 @@ class ErrorResponse extends CborMapSerializable {
   ErrorResponse({required this.error, this.description, this.uri});
 
   /// Creates a new [ErrorResponse] instance from the given CBOR [map].
-  ErrorResponse.fromCborMap(Map<int, CborValue> map)
+  ErrorResponse._fromCborMap(Map<int, CborValue> map)
       : error = ErrorCode.fromCborValue(map[token_const.error]!) {
     map.forEach((key, value) {
       switch (key) {
@@ -79,7 +79,7 @@ class ErrorResponse extends CborMapSerializable {
 
   /// Creates a new [ErrorResponse] instance from the given [serialized] CBOR.
   ErrorResponse.fromSerialized(List<int> serialized)
-      : this.fromCborMap(
+      : this._fromCborMap(
             CborMapSerializable.valueToCborMap(cborDecode(serialized)));
 
   @override

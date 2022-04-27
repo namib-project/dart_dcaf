@@ -45,11 +45,11 @@ abstract class ProofOfPossessionKey extends CborMapSerializable {
 
   /// Creates a new [ProofOfPossessionKey] from the given [map],
   /// which maps from CBOR labels to [CborValue]s.
-  factory ProofOfPossessionKey.fromCborMap(Map<int, CborValue> map) {
+  factory ProofOfPossessionKey._fromCborMap(Map<int, CborValue> map) {
     final MapEntry<int, CborValue> entry = map.entries.single;
     switch (entry.key) {
       case 1:
-        return PlainCoseKey.fromCborMap(
+        return PlainCoseKey._fromCborMap(
             CborMapSerializable.valueToCborMap(entry.value));
       case 2:
         return EncryptedCoseKey.fromValue(entry.value);
@@ -68,7 +68,7 @@ abstract class ProofOfPossessionKey extends CborMapSerializable {
 
   /// Creates a new [ProofOfPossessionKey] from the given CBOR [value].
   factory ProofOfPossessionKey.fromCborValue(CborValue value) {
-    return ProofOfPossessionKey.fromCborMap(
+    return ProofOfPossessionKey._fromCborMap(
         CborMapSerializable.valueToCborMap(value));
   }
 }
@@ -132,7 +132,7 @@ class PlainCoseKey extends ProofOfPossessionKey {
 
   /// Creates a new [PlainCoseKey] instance from the given [map] from
   /// CBOR labels to [CborValue]s.
-  PlainCoseKey.fromCborMap(Map<int, CborValue> map)
+  PlainCoseKey._fromCborMap(Map<int, CborValue> map)
       : this(CoseKey.fromMap(map));
 
   @override

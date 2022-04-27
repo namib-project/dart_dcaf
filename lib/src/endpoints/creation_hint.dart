@@ -70,7 +70,7 @@ class AuthServerRequestCreationHint extends CborMapSerializable {
   /// Creates a new [AuthServerRequestCreationHint] instance from the given
   /// [serialized] CBOR.
   AuthServerRequestCreationHint.fromSerialized(List<int> serialized)
-      : this.fromCborMap(
+      : this._fromCborMap(
             CborMapSerializable.valueToCborMap(cborDecode(serialized)));
 
   /// Creates a new [AuthServerRequestCreationHint] instance.
@@ -83,7 +83,7 @@ class AuthServerRequestCreationHint extends CborMapSerializable {
 
   /// Creates a new [AuthServerRequestCreationHint] instance from the given
   /// CBOR [map].
-  AuthServerRequestCreationHint.fromCborMap(Map<int, CborValue> map) {
+  AuthServerRequestCreationHint._fromCborMap(Map<int, CborValue> map) {
     // TODO(falko17): Better error handling
     map.forEach((key, value) {
       switch (key) {
