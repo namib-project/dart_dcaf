@@ -13,18 +13,7 @@
 
 import 'package:cbor/cbor.dart';
 import 'package:dcaf/dcaf.dart';
-import 'package:dcaf/src/ace_profile.dart';
-import 'package:dcaf/src/aif.dart';
 import 'package:dcaf/src/cbor.dart';
-import 'package:dcaf/src/cose/cose_key.dart';
-import 'package:dcaf/src/cose/key_type.dart';
-import 'package:dcaf/src/endpoints/error_response.dart';
-import 'package:dcaf/src/endpoints/token_request.dart';
-import 'package:dcaf/src/endpoints/token_response.dart';
-import 'package:dcaf/src/error_code.dart';
-import 'package:dcaf/src/grant_type.dart';
-import 'package:dcaf/src/pop.dart';
-import 'package:dcaf/src/scope.dart';
 import 'package:hex/hex.dart';
 import 'package:test/test.dart';
 
