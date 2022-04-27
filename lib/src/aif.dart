@@ -59,9 +59,8 @@ enum AifRestMethod with CborSerializableEnum {
   /// Not available for HTTP.
   fetch(1 << 4),
 
-  /// PATCH method as specified in [RFC 8132, section 3 (CoAP)](https://datatracker.ietf.org/doc/html/rfc8132#section-3).
-  ///
-  /// Not available for HTTP.
+  /// PATCH method as specified in [RFC 8132, section 3 (CoAP)](https://datatracker.ietf.org/doc/html/rfc8132#section-3),
+  /// and [RFC 5789, section 2 (HTTP)](https://datatracker.ietf.org/doc/html/rfc5789#section-2).
   patch(1 << 5),
 
   /// iPATCH method as specified in [RFC 8132, section 3 (CoAP)](https://datatracker.ietf.org/doc/html/rfc8132#section-3).
