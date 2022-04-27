@@ -20,7 +20,7 @@ import 'endpoints/token_response.dart';
 /// [RFC 8747, section 3.1](https://datatracker.ietf.org/doc/html/rfc8747#section-3.1).
 ///
 /// Can either be a [PlainCoseKey], an [EncryptedCoseKey] (note that
-/// this is not yet fully supported), or simply a [KeyId].
+/// this is not yet fully supported), or simply a [PlainKeyId].
 /// As described in [`draft-ietf-ace-oauth-params-16`](https://datatracker.ietf.org/doc/html/draft-ietf-ace-oauth-params-16),
 /// PoP keys are used for the `reqCnf` parameter in [AccessTokenRequest]
 /// as well as for the `cnf` and `rsCnf` parameters in [AccessTokenResponse].
@@ -59,7 +59,7 @@ abstract class ProofOfPossessionKey extends CborMapSerializable {
           throw FormatException(
               "Key ID must consist of CBOR bytestring.", value);
         }
-        return KeyId.fromValue(value);
+        return PlainKeyId.fromValue(value);
       default:
         throw FormatException(
             "Unknown ProofOfPossessionKey type '${entry.key}'.", entry);
@@ -73,27 +73,27 @@ abstract class ProofOfPossessionKey extends CborMapSerializable {
   }
 }
 
-/// Key ID of the actual proof-of-possession key.
+/// Proof-of-possession key represented by only its Key ID.
 ///
 /// Note that as described in [section 6 of RFC 8747](https://datatracker.ietf.org/doc/html/rfc8747#section-6),
 /// certain caveats apply when choosing to represent a
 /// [ProofOfPossessionKey] by its Key ID.
 ///
 /// For details, see [section 3.4 of RFC 8747](https://datatracker.ietf.org/doc/html/rfc8747#section-3.4).
-class KeyId extends ProofOfPossessionKey {
+class PlainKeyId extends ProofOfPossessionKey {
   @override
   ByteString keyId;
 
-  /// Creates a new [KeyId] instance.
-  KeyId(this.keyId) : super._();
+  /// Creates a new [PlainKeyId] instance.
+  PlainKeyId(this.keyId) : super._();
 
   @override
   Map<int, CborValue> toCborMap() {
     return {3: CborBytes(keyId)};
   }
 
-  /// Creates a new [KeyId] instance from the given CBOR [bytes].
-  KeyId.fromValue(CborBytes bytes) : this(bytes.bytes);
+  /// Creates a new [PlainKeyId] instance from the given CBOR [bytes].
+  PlainKeyId.fromValue(CborBytes bytes) : this(bytes.bytes);
 
   @override
   String toString() {
@@ -103,7 +103,7 @@ class KeyId extends ProofOfPossessionKey {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is KeyId &&
+      other is PlainKeyId &&
           runtimeType == other.runtimeType &&
           keyId.nullableEquals(other.keyId);
 

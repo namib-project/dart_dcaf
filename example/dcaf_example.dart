@@ -28,7 +28,7 @@ void main() {
       clientId: "myclient",
       audience: "valve242",
       scope: TextScope("read"),
-      reqCnf: KeyId([0xDC, 0xAF]));
+      reqCnf: PlainKeyId([0xDC, 0xAF]));
   final List<int> serializedRequest = request.serialize();
   assert(AccessTokenRequest.fromSerialized(serializedRequest) == request);
 

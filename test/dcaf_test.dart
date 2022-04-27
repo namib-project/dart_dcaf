@@ -343,7 +343,7 @@ void main() {
           clientId: "myclient",
           audience: "valve424",
           scope: TextScope("read"),
-          reqCnf: KeyId([0xea, 0x48, 0x34, 0x75, 0x72, 0x4c, 0xd7, 0x75]));
+          reqCnf: PlainKeyId([0xea, 0x48, 0x34, 0x75, 0x72, 0x4c, 0xd7, 0x75]));
       expectSerDeRequest(request,
           "A404A10348EA483475724CD775056876616C76653432340964726561641818686D79636C69656E74");
     });
