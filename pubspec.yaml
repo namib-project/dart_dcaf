@@ -1,5 +1,5 @@
 name: dcaf
-description: An implementation of the ACE-OAuth framework.
+description: An implementation of the ACE-OAuth framework, intended for OAuth clients. Its main feature is CBOR-(de-)serializable data models.
 version: 0.1.0-pre
 repository: https://github.com/namib-project/dart_dcaf
 
