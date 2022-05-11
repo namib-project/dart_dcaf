@@ -290,10 +290,8 @@ void main() {
 
   group('Access Token Request', () {
     test('Symmetric Request', () {
-      final request = AccessTokenRequest(
-        clientId: "myclient",
-        audience: "tempSensor4711"
-      );
+      final request =
+          AccessTokenRequest(clientId: "myclient", audience: "tempSensor4711");
       expectSerDeRequest(
           request, "A2056E74656D7053656E736F72343731311818686D79636C69656E74");
     });
@@ -454,13 +452,13 @@ void main() {
   });
 
   group('Error Response', () {
-
     test('Simple Error', () {
       final error = ErrorResponse(
           error: ErrorCode.unauthorizedClient,
           description: "You are not authorized to receive this token.",
           uri: "https://http.cat/401");
-      expectSerDeError(error, "A3181E04181F782D596F7520617265206E6F7420617574686F72697A656420746F2072656365697665207468697320746F6B656E2E18207468747470733A2F2F687474702E6361742F343031");
+      expectSerDeError(error,
+          "A3181E04181F782D596F7520617265206E6F7420617574686F72697A656420746F2072656365697665207468697320746F6B656E2E18207468747470733A2F2F687474702E6361742F343031");
     });
   });
 }

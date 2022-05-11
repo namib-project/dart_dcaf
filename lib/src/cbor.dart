@@ -34,7 +34,6 @@ extension NullableEquals on ByteString? {
 
 /// Abstract class intended for data structures which are serializable to CBOR.
 abstract class CborSerializable {
-
   /// Don't use this. This class was not designed to be extended by clients.
   @protected
   CborSerializable();
