@@ -18,9 +18,9 @@ analyzer:
   exclude:
     - "**/*.g.dart"
     - "**/*.freezed.dart"
-  strong-mode:
-    implicit-casts: false
-    implicit-dynamic: false
+  language:
+    strict-raw-types: true
+    strict-casts: true
   errors:
     invalid_annotation_target: ignore  # for freezed
     missing_required_param: warning
